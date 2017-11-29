@@ -376,65 +376,65 @@ function SetForceGhostTimeToLive(force)
 end
 
 -- Return steel chest entity (or nil)
-function DropEmptySteelChest(player)
-    local pos = player.surface.find_non_colliding_position("steel-chest", player.position, 15, 1)
-    if not pos then
-        return nil
-    end
-    local grave = player.surface.create_entity{name="steel-chest", position=pos, force="neutral"}
-    return grave
-end
+-- function DropEmptySteelChest(player)
+--     local pos = player.surface.find_non_colliding_position("steel-chest", player.position, 15, 1)
+--     if not pos then
+--         return nil
+--     end
+--     local grave = player.surface.create_entity{name="steel-chest", position=pos, force="neutral"}
+--     return grave
+-- end
 
 -- Gravestone soft mod. With my own modifications/improvements.
-function DropGravestoneChests(player)
+-- function DropGravestoneChests(player)
 
-    local grave
-    local count = 0
+--     local grave
+--     local count = 0
 
-    -- Use "game.player.cursorstack" to get items in player's hand.
+--     -- Use "game.player.cursorstack" to get items in player's hand.
 
-    -- Loop through a players different inventories
-    -- Put it all into the chest
-    -- If the chest is full, create a new chest.
-    for i, id in ipairs{
-    defines.inventory.player_armor,
-    defines.inventory.player_main,
-    defines.inventory.player_quickbar,
-    defines.inventory.player_guns,
-    defines.inventory.player_ammo,
-    defines.inventory.player_tools,
-    defines.inventory.player_trash} do
-        local inv = player.get_inventory(id)
-        if (not inv.is_empty()) then
-            for j = 1, #inv do
-                if inv[j].valid_for_read then
+--     -- Loop through a players different inventories
+--     -- Put it all into the chest
+--     -- If the chest is full, create a new chest.
+--     for i, id in ipairs{
+--     defines.inventory.player_armor,
+--     defines.inventory.player_main,
+--     defines.inventory.player_quickbar,
+--     defines.inventory.player_guns,
+--     defines.inventory.player_ammo,
+--     defines.inventory.player_tools,
+--     defines.inventory.player_trash} do
+--         local inv = player.get_inventory(id)
+--         if (not inv.is_empty()) then
+--             for j = 1, #inv do
+--                 if inv[j].valid_for_read then
                     
-                    -- Create a chest when counter is reset
-                    if (count == 0) then
-                        grave = DropEmptySteelChest(player)
-                        if (grave == nil) then
-                            player.print("Not able to place a chest nearby! Some items lost!")
-                            return
-                        end
-                        grave_inv = grave.get_inventory(defines.inventory.chest)
-                    end
-                    count = count + 1
+--                     -- Create a chest when counter is reset
+--                     if (count == 0) then
+--                         grave = DropEmptySteelChest(player)
+--                         if (grave == nil) then
+--                             player.print("Not able to place a chest nearby! Some items lost!")
+--                             return
+--                         end
+--                         grave_inv = grave.get_inventory(defines.inventory.chest)
+--                     end
+--                     count = count + 1
 
-                    grave_inv[count].set_stack(inv[j])
+--                     grave_inv[count].set_stack(inv[j])
 
-                    -- Reset counter when chest is full
-                    if (count == #grave_inv) then
-                        count = 0
-                    end
-                end
-            end
-        end
-    end
+--                     -- Reset counter when chest is full
+--                     if (count == #grave_inv) then
+--                         count = 0
+--                     end
+--                 end
+--             end
+--         end
+--     end
 
-    if (grave ~= nil) then
-        player.print("Successfully dropped your items into a chest! Go get them quick!")
-    end
-end
+--     if (grave ~= nil) then
+--         player.print("Successfully dropped your items into a chest! Go get them quick!")
+--     end
+-- end
 
 
 -- Enforce a circle of land, also adds trees in a ring around the area.
@@ -478,163 +478,140 @@ function ConfigureAlienStartingParams()
 end
 
 -- Add Long Reach to Character
-function GivePlayerLongReach(player)
-    player.character.character_build_distance_bonus = BUILD_DIST_BONUS
-    player.character.character_reach_distance_bonus = REACH_DIST_BONUS
-    player.character.character_resource_reach_distance_bonus  = RESOURCE_DIST_BONUS
-end
+-- Exported.
+-- function GivePlayerLongReach(player)
+--     player.character.character_build_distance_bonus = BUILD_DIST_BONUS
+--     player.character.character_reach_distance_bonus = REACH_DIST_BONUS
+--     player.character.character_resource_reach_distance_bonus  = RESOURCE_DIST_BONUS
+-- end
     
 function GivePlayerBonuses(player)
     player.character.character_crafting_speed_modifier = scenario.config.playerBonus.character_crafting_speed_modifier;
 end
 
 
--- This creates a random silo position, stored to global.siloPosition
--- It uses the config setting SILO_CHUNK_DISTANCE and spawns the silo somewhere
--- on a circle edge with radius using that distance.
-function SetRandomSiloPosition()
-    if (global.siloPosition == nil) then
-        -- Get an X,Y on a circle far away.
-        distX = math.random(0,SILO_CHUNK_DISTANCE_X)
-        distY = RandomNegPos() * math.floor(math.sqrt(SILO_CHUNK_DISTANCE_X^2 - distX^2))
-        distX = RandomNegPos() * distX
+-- --------------------------------------------------------------------------------
+-- -- Autofill Stuff
+-- --------------------------------------------------------------------------------
 
-        -- Set those values.
-        local siloX = distX*CHUNK_SIZE + CHUNK_SIZE/2
-        local siloY = distY*CHUNK_SIZE + CHUNK_SIZE/2
-        global.siloPosition = {x = siloX, y = siloY}
-    end
-end
+-- -- Transfer Items Between Inventory
+-- -- Returns the number of items that were successfully transferred.
+-- -- Returns -1 if item not available.
+-- -- Returns -2 if can't place item into destInv (ERROR)
+-- function TransferItems(result, srcInv, destEntity, itemStack)
+--     -- Check if item is in srcInv
+--     if (srcInv.get_item_count(itemStack.name) == 0) then
+--         return -1
+--     end
 
--- Sets the global.siloPosition var to the set in the config file
-function SetFixedSiloPosition()
-    if (global.siloPosition == nil) then
-        global.siloPosition = SILO_POSITION
-    end
-end
-
---------------------------------------------------------------------------------
--- Autofill Stuff
---------------------------------------------------------------------------------
-
--- Transfer Items Between Inventory
--- Returns the number of items that were successfully transferred.
--- Returns -1 if item not available.
--- Returns -2 if can't place item into destInv (ERROR)
-function TransferItems(result, srcInv, destEntity, itemStack)
-    -- Check if item is in srcInv
-    if (srcInv.get_item_count(itemStack.name) == 0) then
-        return -1
-    end
-
-    -- Check if can insert into destInv
-    if (not destEntity.can_insert(itemStack)) then
-        return -2
-    end
+--     -- Check if can insert into destInv
+--     if (not destEntity.can_insert(itemStack)) then
+--         return -2
+--     end
     
-    -- Insert items
-    local itemTotal = srcInv.get_item_count(itemStack.name)
-    local itemsRemoved = srcInv.remove(itemStack)
-    itemStack.count = itemsRemoved
-    result.autofillItemRemaining = itemTotal - itemsRemoved
-    result.autofillItemName = itemStack.name
-    return destEntity.insert(itemStack)
-end
+--     -- Insert items
+--     local itemTotal = srcInv.get_item_count(itemStack.name)
+--     local itemsRemoved = srcInv.remove(itemStack)
+--     itemStack.count = itemsRemoved
+--     result.autofillItemRemaining = itemTotal - itemsRemoved
+--     result.autofillItemName = itemStack.name
+--     return destEntity.insert(itemStack)
+-- end
 
--- Attempts to transfer at least some of one type of item from an array of items.
--- Use this to try transferring several items in order
--- It returns once it successfully inserts at least some of one type.
-function TransferItemMultipleTypes(result, srcInv, destEntity, itemNameArray, itemCount)
-    local ret = 0
-    for _,itemName in pairs(itemNameArray) do
-        ret = TransferItems(result, srcInv, destEntity, {name=itemName, count=itemCount})
-        if (ret > 0) then
-            return ret -- Return the value succesfully transferred
-        end
-    end
-    return ret -- Return the last error code
-end
+-- -- Attempts to transfer at least some of one type of item from an array of items.
+-- -- Use this to try transferring several items in order
+-- -- It returns once it successfully inserts at least some of one type.
+-- function TransferItemMultipleTypes(result, srcInv, destEntity, itemNameArray, itemCount)
+--     local ret = 0
+--     for _,itemName in pairs(itemNameArray) do
+--         ret = TransferItems(result, srcInv, destEntity, {name=itemName, count=itemCount})
+--         if (ret > 0) then
+--             return ret -- Return the value succesfully transferred
+--         end
+--     end
+--     return ret -- Return the last error code
+-- end
 
-local vehicleFuel = {"rocket-fuel", "solid-fuel", "raw-wood", "coal"}
-local machineGunAmmo = {"uranium-rounds-magazine", "piercing-rounds-magazine","firearm-magazine"}
-local tankCannonAmmo = {"explosive-uranium-cannon-shell", "uranium-cannon-shell", "explosive-cannon-shell", "cannon-shell"}
-local tankFlamethrowerAmmo = {"flamethrower-ammo"}
+-- local vehicleFuel = {"rocket-fuel", "solid-fuel", "raw-wood", "coal"}
+-- local machineGunAmmo = {"uranium-rounds-magazine", "piercing-rounds-magazine","firearm-magazine"}
+-- local tankCannonAmmo = {"explosive-uranium-cannon-shell", "uranium-cannon-shell", "explosive-cannon-shell", "cannon-shell"}
+-- local tankFlamethrowerAmmo = {"flamethrower-ammo"}
 
-local localizedName = {
-    -- fuel
-    ["rocket-fuel"] = "Rocket Fuel", 
-    ["solid-fuel"] = "Solid Fuel",
-    ["raw-wood"] = "Raw Wood",
-    ["coal"] = "Coal",
+-- local localizedName = {
+--     -- fuel
+--     ["rocket-fuel"] = "Rocket Fuel", 
+--     ["solid-fuel"] = "Solid Fuel",
+--     ["raw-wood"] = "Raw Wood",
+--     ["coal"] = "Coal",
 
-    -- machine gun / turret ammo
-    ["uranium-rounds-magazine"] = "Uranium Rounds Magazine", 
-    ["piercing-rounds-magazine"] = "Piercing Rounds Magazine",
-    ["firearm-magazine"] = "Firearm Magazine",
+--     -- machine gun / turret ammo
+--     ["uranium-rounds-magazine"] = "Uranium Rounds Magazine", 
+--     ["piercing-rounds-magazine"] = "Piercing Rounds Magazine",
+--     ["firearm-magazine"] = "Firearm Magazine",
 
-    -- tank gun ammo
-    ["explosive-uranium-cannon-shell"] = "Explosive Uranium Cannon Shell",
-    ["uranium-cannon-shell"] = "Uranium Cannon Shell",
-    ["explosive-cannon-shell"] = "Explosive Cannon Shell",
-    ["cannon-shell"] = "Cannon Shell",
+--     -- tank gun ammo
+--     ["explosive-uranium-cannon-shell"] = "Explosive Uranium Cannon Shell",
+--     ["uranium-cannon-shell"] = "Uranium Cannon Shell",
+--     ["explosive-cannon-shell"] = "Explosive Cannon Shell",
+--     ["cannon-shell"] = "Cannon Shell",
     
-    -- flamethrower ammo
-    ["flamethrower-ammo"] = "Flamethrower Ammo"
-}
+--     -- flamethrower ammo
+--     ["flamethrower-ammo"] = "Flamethrower Ammo"
+-- }
 
-local function ShowAutofillResult( ret, result, itemKind, position, offset)
-    -- Check the result and print the right text to inform the user what happened.
-    if (ret > 0) then
-        -- Inserted ammo successfully
-        local color = {r=255,g=255,b=255}
-        local ammoName = localizedName[ result.autofillItemName ];
-        if ammoName ~= nil then
-            FlyingText("+" .. ret .. " " .. ammoName .. " (" .. result.autofillItemRemaining .. ")", { position.x, position.y + offset}, color)
-        end
-    elseif (ret == -1) then
-        local color = {r=255,g=255,b=255}
-        FlyingText("No " .. itemKind .. " in Main Inventory to Transfer", { position.x, position.y + offset}, color) 
-    elseif (ret == -2) then
-        local color = {r=255,g=255,b=255}
-        FlyingText("Autofill ERROR! - Report this bug!", { position.x, position.y + offset}, color )
-    end
-end
+-- local function ShowAutofillResult( ret, result, itemKind, position, offset)
+--     -- Check the result and print the right text to inform the user what happened.
+--     if (ret > 0) then
+--         -- Inserted ammo successfully
+--         local color = {r=255,g=255,b=255}
+--         local ammoName = localizedName[ result.autofillItemName ];
+--         if ammoName ~= nil then
+--             FlyingText("+" .. ret .. " " .. ammoName .. " (" .. result.autofillItemRemaining .. ")", { position.x, position.y + offset}, color)
+--         end
+--     elseif (ret == -1) then
+--         local color = {r=255,g=255,b=255}
+--         FlyingText("No " .. itemKind .. " in Main Inventory to Transfer", { position.x, position.y + offset}, color) 
+--     elseif (ret == -2) then
+--         local color = {r=255,g=255,b=255}
+--         FlyingText("Autofill ERROR! - Report this bug!", { position.x, position.y + offset}, color )
+--     end
+-- end
 
--- Autofills a turret with ammo
-function AutofillTurret(player, turret)
-    local mainInv = player.get_inventory(defines.inventory.player_main)
-    local result = {}
+-- -- Autofills a turret with ammo
+-- function AutofillTurret(player, turret)
+--     local mainInv = player.get_inventory(defines.inventory.player_main)
+--     local result = {}
 
-    -- Attempt to transfer some ammo
-    local ret = TransferItemMultipleTypes(result, mainInv, turret, machineGunAmmo, AUTOFILL_TURRET_AMMO_QUANTITY)
-    ShowAutofillResult( ret, result, "Ammo", turret.position, 0 );
-end
+--     -- Attempt to transfer some ammo
+--     local ret = TransferItemMultipleTypes(result, mainInv, turret, machineGunAmmo, AUTOFILL_TURRET_AMMO_QUANTITY)
+--     ShowAutofillResult( ret, result, "Ammo", turret.position, 0 );
+-- end
 
--- Autofills a vehicle with fuel, bullets and shells where applicable
-function AutoFillVehicle(player, vehicle)
-    local mainInv = player.get_inventory(defines.inventory.player_main)
-    local result = {}
+-- -- Autofills a vehicle with fuel, bullets and shells where applicable
+-- function AutoFillVehicle(player, vehicle)
+--     local mainInv = player.get_inventory(defines.inventory.player_main)
+--     local result = {}
 
-    -- Attempt to transfer some fuel
-    if ((vehicle.name == "car") or (vehicle.name == "tank") or (vehicle.name == "locomotive")) then
-      local ret = TransferItemMultipleTypes(result, mainInv, vehicle, vehicleFuel, AUTOFILL_FUEL_QUANTITY)
-      ShowAutofillResult( ret, result, "Fuel", vehicle.position, 0);
-    end
+--     -- Attempt to transfer some fuel
+--     if ((vehicle.name == "car") or (vehicle.name == "tank") or (vehicle.name == "locomotive")) then
+--       local ret = TransferItemMultipleTypes(result, mainInv, vehicle, vehicleFuel, AUTOFILL_FUEL_QUANTITY)
+--       ShowAutofillResult( ret, result, "Fuel", vehicle.position, 0);
+--     end
 
-    -- Attempt to transfer some ammo
-    if ((vehicle.name == "car") or (vehicle.name == "tank")) then
-      local ret = TransferItemMultipleTypes(result, mainInv, vehicle, machineGunAmmo, AUTOFILL_MACHINEGUN_AMMO_QUANTITY)
-      ShowAutofillResult( ret, result, "Ammo", vehicle.position, 1 );
-    end
+--     -- Attempt to transfer some ammo
+--     if ((vehicle.name == "car") or (vehicle.name == "tank")) then
+--       local ret = TransferItemMultipleTypes(result, mainInv, vehicle, machineGunAmmo, AUTOFILL_MACHINEGUN_AMMO_QUANTITY)
+--       ShowAutofillResult( ret, result, "Ammo", vehicle.position, 1 );
+--     end
 
-    -- Attempt to transfer some tank shells
-    if (vehicle.name == "tank") then
-      local ret = TransferItemMultipleTypes(result, mainInv, vehicle, tankCannonAmmo, AUTOFILL_CANNON_AMMO_QUANTITY)
-      ShowAutofillResult( ret, result, "Shells", vehicle.position, 2);
-      local ret = TransferItemMultipleTypes(result, mainInv, vehicle, tankFlamethrowerAmmo, AUTOFILL_FLAMETHROWER_AMMO_QUANTITY)
-      ShowAutofillResult( ret, result, "Flamethrower Ammo", vehicle.position, 3);
-    end
-end
+--     -- Attempt to transfer some tank shells
+--     if (vehicle.name == "tank") then
+--       local ret = TransferItemMultipleTypes(result, mainInv, vehicle, tankCannonAmmo, AUTOFILL_CANNON_AMMO_QUANTITY)
+--       ShowAutofillResult( ret, result, "Shells", vehicle.position, 2);
+--       local ret = TransferItemMultipleTypes(result, mainInv, vehicle, tankFlamethrowerAmmo, AUTOFILL_FLAMETHROWER_AMMO_QUANTITY)
+--       ShowAutofillResult( ret, result, "Flamethrower Ammo", vehicle.position, 3);
+--     end
+-- end
 
 RSO_MODE = 1
 VANILLA_MODE = 2
@@ -675,17 +652,17 @@ function PlayerJoinedMessages(event)
 end
 
 -- Create the gravestone chests for a player when they die
-function CreateGravestoneChestsOnDeath(event)
-    DropGravestoneChests(game.players[event.player_index])
-end
+-- function CreateGravestoneChestsOnDeath(event)
+--     DropGravestoneChests(game.players[event.player_index])
+-- end
 
 -- Remove decor to save on file size
-function UndecorateOnChunkGenerate(event)
-    local surface = event.surface
-    local chunkArea = event.area
-    RemoveDecorationsArea(surface, chunkArea)
-    RemoveFish(surface, chunkArea)
-end
+-- function UndecorateOnChunkGenerate(event)
+--     local surface = event.surface
+--     local chunkArea = event.area
+--     RemoveDecorationsArea(surface, chunkArea)
+--     RemoveFish(surface, chunkArea)
+-- end
 
 -- Give player items on respawn
 -- Intended to be the default behavior when not using separate spawns
@@ -711,13 +688,14 @@ function Autofill(event)
     end
 end
 
+-- Moved to frontier_silo, wasn't used anywhere else.
 -- General purpose event function for removing a particular recipe
-function RemoveRecipe(event, recipeName)
-    local recipes = event.research.force.recipes
-    if recipes[recipeName] then
-        recipes[recipeName].enabled = false
-    end
-end
+-- function RemoveRecipe(event, recipeName)
+--     local recipes = event.research.force.recipes
+--     if recipes[recipeName] then
+--         recipes[recipeName].enabled = false
+--     end
+-- end
 
 --------------------------------------------------------------------------------
 -- UNUSED CODE
