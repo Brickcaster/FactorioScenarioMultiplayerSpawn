@@ -25,7 +25,7 @@
 --      3. Put mods into their own files where possible (RSO has multiple)
 
 -- Event manager
-require "locale/utils/event" --This is so all of the modules play nice with each other.
+require("locale/utils/event") --This is so all of the modules play nice with each other.
 
 -- My Scenario Includes
 require("oarc_utils")
@@ -33,13 +33,20 @@ require("jvmguy_utils")
 require("config")
 
 -- Include Mods
+
+-- Map related
 require("rso_control")
 require("separate_spawns")
 require("separate_spawns_guis")
 require("frontier_silo")
-require("tag")
-require("playerlist_gui")
-require("bps")
+
+-- Modules
+require("locale/modules/longreach")
+require("locale/modules/undecorator")
+require("locale/modules/autofill")
+--require("tag") --Deferred.  Need gui manager.
+--require("playerlist_gui") --Deferred.  Need gui manager.
+--require("bps") --Deferred.  Need gui manager.
 require("statuscommand")
 require("kitcommand")
 require("rgcommand")
@@ -112,15 +119,17 @@ function jvm.on_init(event)
         InitSpawnGlobalsAndForces()
     end
 
-    if ENABLE_RANDOM_SILO_POSITION then
-        SetRandomSiloPosition()
-    else
-        SetFixedSiloPosition()
-    end
+    -- Exported.
+    -- if ENABLE_RANDOM_SILO_POSITION then
+    --     SetRandomSiloPosition()
+    -- else
+    --     SetFixedSiloPosition()
+    -- end
 
-    if FRONTIER_ROCKET_SILO_MODE then
-        ChartRocketSiloArea(game.forces[MAIN_FORCE])
-    end
+    -- Exported.
+    -- if FRONTIER_ROCKET_SILO_MODE then
+    --     ChartRocketSiloArea(game.forces[MAIN_FORCE])
+    -- end
 
     if scenario.config.research.coalLiquefactionResearched then
         game.forces[MAIN_FORCE].technologies['coal-liquefaction'].researched=true;
@@ -146,6 +155,7 @@ Event.register(-1, jvm.on_init)
 -- Slightly modified for my purposes
 ----------------------------------------
 function jvm.on_rocket_launch(event)
+    -- Mylon's Note: This is more scenario related than frontier silo related.
     if FRONTIER_ROCKET_SILO_MODE then
         RocketLaunchEvent(event)
     end
@@ -164,9 +174,11 @@ function jvm.on_chunk_generated(event)
         shouldGenerateResources = regrow.shouldGenerateResources(event);
         regrow.onChunkGenerated(event)
     end
-    if ENABLE_UNDECORATOR then
-        UndecorateOnChunkGenerate(event)
-    end
+
+    -- Exported to undecorator.lua
+    -- if ENABLE_UNDECORATOR then
+    --     UndecorateOnChunkGenerate(event)
+    -- end
     
     if scenario.config.riverworld.enabled then
         spawnGenerator.ChunkGenerated(event);
@@ -186,9 +198,9 @@ function jvm.on_chunk_generated(event)
         end
     end
 
-    if FRONTIER_ROCKET_SILO_MODE then
-        GenerateRocketSiloChunk(event)
-    end
+    -- if FRONTIER_ROCKET_SILO_MODE then
+    --     GenerateRocketSiloChunk(event)
+    -- end
 
     -- This MUST come after RSO generation!
     if ENABLE_SEPARATE_SPAWNS then
@@ -206,13 +218,13 @@ Event.register(defines.events.on_chunk_generated, jvm.on_chunk_generated)
 -- Gui Click
 ----------------------------------------
 function jvm.on_gui_click(event)
-    if ENABLE_TAGS then
-        TagGuiClick(event)
-    end
+    -- if ENABLE_TAGS then
+    --     TagGuiClick(event)
+    -- end
 
-    if ENABLE_PLAYER_LIST then
-        PlayerListGuiClick(event)
-    end
+    -- if ENABLE_PLAYER_LIST then
+    --     PlayerListGuiClick(event)
+    -- end
 
     if ENABLE_SEPARATE_SPAWNS then
         WelcomeTextGuiClick(event)
@@ -232,13 +244,13 @@ function jvm.on_player_joined_game(event)
     
     PlayerJoinedMessages(event)
 
-    if ENABLE_TAGS then
-        CreateTagGui(event)
-    end
+    -- if ENABLE_TAGS then
+    --     CreateTagGui(event)
+    -- end
 
-    if ENABLE_PLAYER_LIST then
-        CreatePlayerListGui(event)
-    end
+    -- if ENABLE_PLAYER_LIST then
+    --     CreatePlayerListGui(event)
+    -- end
 end
 
 Event.register(defines.events.on_player_joined_game, jvm.on_player_joined_game)
@@ -272,13 +284,13 @@ end
 Event.register(defines.events.on_player_created, jvm.on_player_created)
 
 
-function jvm.on_player_died(event)
-    if ENABLE_GRAVESTONE_CHESTS then
-        CreateGravestoneChestsOnDeath(event)
-    end
-end
+-- function jvm.on_player_died(event)
+--     if ENABLE_GRAVESTONE_CHESTS then
+--         CreateGravestoneChestsOnDeath(event)
+--     end
+-- end
 
-Event.register(defines.events.on_player_died, jvm.on_player_died)
+-- Event.register(defines.events.on_player_died, jvm.on_player_died)
 
 function jvm.on_player_respawned(event)
     if not ENABLE_SEPARATE_SPAWNS then
@@ -304,9 +316,9 @@ end
 Event.register(defines.events.on_player_left_game, jvm.on_player_left_game)
 
 function jvm.on_built_entity(event)
-    if ENABLE_AUTOFILL then
-        Autofill(event)
-    end
+    -- if ENABLE_AUTOFILL then
+    --     Autofill(event)
+    -- end
 
     if scenario.config.regrow.enabled then
         regrow.onBuiltEntity(event);
@@ -345,16 +357,14 @@ end
 -- On Research Finished
 ----------------------------------------
 function jvm.on_research_finished(event)
-    if FRONTIER_ROCKET_SILO_MODE then
-        RemoveRocketSiloRecipe(event)
-    end
+    -- if FRONTIER_ROCKET_SILO_MODE then
+    --     RemoveRocketSiloRecipe(event)
+    -- end
 
     if ENABLE_BLUEPRINT_STRING then
         bps_on_research_finished(event)
     end
 
-    -- Example of how to remove a particular recipe:
-    -- RemoveRecipe(event, "beacon")
 end
 
 Event.register(defines.events.on_research_finished, jvm.on_research_finished)

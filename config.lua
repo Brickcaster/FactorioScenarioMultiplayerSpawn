@@ -172,25 +172,34 @@ ENABLE_ALL_RESEARCH_DONE = false
 ENABLE_RSO = true
 
 -- Enable Gravestone Chests
-ENABLE_GRAVESTONE_CHESTS = false
+-- DEPRECIATED: Removed entirely.
+-- ENABLE_GRAVESTONE_CHESTS = false
 
 -- Enable Undecorator
-ENABLE_UNDECORATOR = true
+-- DEPRECIATED: Include or comment out line in control.lua
+--ENABLE_UNDECORATOR = true
 
 -- enable player time/position status
-ENABLE_STATUS = true
+-- DEPRECIATED: Include or comment out line in control.lua
+-- This does not seem to be used anywhere?
+--  ENABLE_STATUS = true
 
 -- Enable Tags
-ENABLE_TAGS = true
+-- DEPRECIATED: Include or comment out line in control.lua
+--  ENABLE_TAGS = true
+
 
 -- Enable GUI player list
-ENABLE_PLAYER_LIST = true
+-- DEPRECIATED: Include or comment out line in control.lua
+-- ENABLE_PLAYER_LIST = true
 
 -- Enable Long Reach
-ENABLE_LONGREACH = true
+-- DEPRECIATED: Include or comment out line in control.lua
+-- ENABLE_LONGREACH = true
 
 -- Enable Autofill
-ENABLE_AUTOFILL = true
+-- DEPRECIATED: Include or comment out line in control.lua
+-- ENABLE_AUTOFILL = true
 
 --------------------------------------------------------------------------------
 -- Spawn Options
